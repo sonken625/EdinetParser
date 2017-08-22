@@ -2,16 +2,23 @@ from xml.dom import minidom
 import glob
 from lxml import etree
 
-NAME_SPACES={}
 CONSOLIDATED_TEXT="CurrentYearConsolidatedInstant"
 NON_CONSOLIDATED_TEXT="CurrentYearNonConsolidatedInstant"
 
+
+
 #write directory where xbrl files are
-XBRL_FILES_URL="test/"
+XBRL_FILES_URL="xbrls/"
+
+
 
 def getValue(tagName,root,isConsolidated):
-    for NAME_SPACE in NAME_SPACES:
-        elements = root.findall(NAME_SPACE+":"+tagName, NAME_SPACES)
+    nameSpaces = root.nsmap
+
+    for nameSpace in nameSpaces:
+        elements = root.findall(nameSpace+":"+tagName, nameSpaces)
+
+
         if(len(elements)==0):
             continue
         if (isConsolidated==True):
@@ -24,12 +31,11 @@ def getValue(tagName,root,isConsolidated):
                     return element.text
 
 
-
-files=glob.glob(XBRL_FILES_URL+'*.xbrl')
-print(files[0])
-dom = minidom.parse(files[0])
-root = etree.fromstring(dom.toxml())
-NAME_SPACES = root.nsmap
-
-print(getValue("AccumulatedDepreciationWells",root,True))
-
+#
+# def getData(tagName,isConsolidated):
+#     files = glob.glob(XBRL_FILES_URL + '*.xbrl')
+#     for file in files:
+#         print(file)
+#         dom = minidom.parse(file)
+#         root = etree.fromstring(dom.toxml())
+#         getValue(tagName, root,isConsolidated)
