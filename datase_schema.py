@@ -3,7 +3,7 @@ import xlrd
 import sqlite3
 import re
 
-
+COLUMN_NAME_DATA_URL="ColumnNameData/"
 
 
 sql_dict = {'companys' : 'id INTEGER PRIMARY KEY AUTOINCREMENT, company_name TEXT, business_category INTEGER', 'annual_reports':'id INTEGER PRIMARY KEY AUTOINCREMENT, company_id INTEGER, published_date TEXT',
@@ -22,14 +22,6 @@ conn.commit()
 conn.close()
 
 
-
-
-
-
-
-
-
-
 def is_not_japanese(string):
     for ch in string:
         name = unicodedata.name(ch)
@@ -40,7 +32,7 @@ def is_not_japanese(string):
     return True
 
 
-file = xlrd.open_workbook('01_d1.xls')
+file = xlrd.open_workbook(COLUMN_NAME_DATA_URL+'1f.xls')
 
 
 
@@ -49,51 +41,55 @@ param_data = []
 
 for names in file.sheet_names():
 
-    sheet = file.sheet_by_name(names)
+
+    if(re.match(u"目次",names) ==None and re.match(u"勘定科目リストについて",names)==None):
+        print(names)
+        sheet = file.sheet_by_name(names)
+
+        significant = False
+        bs = False
+        pl = False
+        cf = False
+
+        for row in range(0, sheet.nrows):
+
+            variable_name = sheet.cell(row, 8).value
+            type = sheet.cell(row, 9).value
+            first_column = sheet.cell(row, 0).value
+            second_column = sheet.cell(row, 1).value
+            abstract = sheet.cell(row, 13).value
+
+            if first_column != '' and second_column == '':
+                if re.match(u"貸借対照表*", first_column) != None:
+                    significant = True
+                    bs = True
+                    pl = False
+                    cf = False
+                elif re.match(u"損益計算書*", first_column) != None:
+                    significant = True
+                    bs = False
+                    pl = True
+                    cf = False
+                elif re.match(u"キャッシュ・フロー計算書*", first_column) != None:
+                    significant = True
+                    bs = False
+                    pl = False
+                    cf = True
+                else:
+                    significant = False
+                    bs = False
+                    pl = False
+                    cf = True
+            if significant == True:
+                if is_not_japanese(variable_name) and variable_name != '' and type != 'substitutionGroup':
+                    if bs == True and [variable_name, type] not in param_data and abstract == 'false':
+                        param_data.append((variable_name, type, 1))
+                    if pl == True and [variable_name, type] not in param_data and abstract == 'false':
+                        param_data.append((variable_name, type, 2))
+                    if cf == True and [variable_name, type] not in param_data and abstract == 'false':
+                        param_data.append((variable_name, type, 3))
 
 
-    significant = False
-    bs = False
-    pl = False
-    cf = False
-
-    for row in range(0, sheet.nrows):
-
-        variable_name = sheet.cell(row, 14).value
-        type = sheet.cell(row, 15).value
-        first_column = sheet.cell(row, 0).value
-        second_column = sheet.cell(row, 1).value
-        abstract = sheet.cell(row, 20).value
-
-        if first_column != '' and second_column == '':
-            if re.match(u"貸借対照表*", first_column) != None:
-                significant = True
-                bs = True
-                pl = False
-                cf = False
-            elif re.match(u"損益計算書*", first_column) != None:
-                significant = True
-                bs = False
-                pl = True
-                cf = False
-            elif re.match(u"キャッシュ・フロー計算書*", first_column) != None:
-                significant = True
-                bs = False
-                pl = False
-                cf = True
-            else:
-                significant = False
-                bs = False
-                pl = False
-                cf = True
-        if significant == True:
-            if is_not_japanese(variable_name) and variable_name != ''  and type != 'substitutionGroup':
-                if bs == True and [variable_name, type] not in param_data and abstract == 'false':
-                    param_data.append((variable_name, type, 1))
-                if pl == True and [variable_name, type] not in param_data and abstract == 'false':
-                    param_data.append((variable_name, type, 2))
-                if cf == True and [variable_name, type] not in param_data and abstract == 'false':
-                    param_data.append((variable_name, type, 3))
 
 conn = sqlite3.connect('xlrd_data.db')
 c = conn.cursor()
@@ -104,8 +100,6 @@ for each in param_data:
 
 conn.commit()
 conn.close()
-
-
 
 
 
@@ -120,3 +114,4 @@ for each in insert:
     c.execute(sql, tuple(each))
 conn.commit()
 conn.close()
+

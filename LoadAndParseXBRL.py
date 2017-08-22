@@ -30,6 +30,23 @@ def getValue(tagName,root,isConsolidated):
                 if (element.get("contextRef") == NON_CONSOLIDATED_TEXT):
                     return element.text
 
+def getPublishDate(root):
+    nameSpaces = root.nsmap
+    elements = root.findall("xbrli:context", nameSpaces)
+    for element in elements:
+        if(element.get("id")=="CurrentYearNonConsolidatedInstant"):
+            return element.find(".//xbrli:instant",nameSpaces).text
+
+def getCompanyName(root):
+    nameSpaces = root.nsmap
+    print(root.find("jpfr-di:EntityNameJaEntityInformation", nameSpaces).text)
+
+
+
+files = glob.glob(XBRL_FILES_URL + '*.xbrl')
+dom = minidom.parse(files[0])
+root = etree.fromstring(dom.toxml())
+getCompanyName(root)
 
 #
 # def getData(tagName,isConsolidated):
