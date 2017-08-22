@@ -42,11 +42,11 @@ def getCompanyName(root):
     print(root.find("jpfr-di:EntityNameJaEntityInformation", nameSpaces).text)
 
 
-
-files = glob.glob(XBRL_FILES_URL + '*.xbrl')
-dom = minidom.parse(files[0])
-root = etree.fromstring(dom.toxml())
-getCompanyName(root)
+#
+# files = glob.glob(XBRL_FILES_URL + '*.xbrl')
+# dom = minidom.parse(files[0])
+# root = etree.fromstring(dom.toxml())
+# getCompanyName(root)
 
 #
 # def getData(tagName,isConsolidated):
