@@ -5,31 +5,44 @@ from XBRLParser import *
 
 
 
-fileUrl='xbrls2/縲職00040縲鷹未譚ｱ螟ｩ辟ｶ逑ｦ譁ｯ髢狗匱譬ｪ蠑丈ｼ夂､ｾ 譛我ｾ｡險ｼ蛻ｸ蝣ｱ蜻頑嶌 窶・隨ｬ149譛滂ｼ亥ｹｳ謌・2蟷ｴ1譛・譌･ 窶・蟷ｳ謌・2蟷ｴ12譛・1譌･・・xbrl'
-dom = minidom.parse(fileUrl)
-root = etree.fromstring(dom.toxml())
 
 def insert_annual_report_data(root):
     conn = sqlite3.connect('xlrd_data.db')
     c = conn.cursor()
 
+    sqle= 'SELECT companies_id, published_date FROM annual_reports'
+    existing_annual_reports = c.execute(sqle).fetchall()
+
     where1 = (getCompanyName(root),)
+    print(where1)
     sql1 = 'SELECT id FROM companies WHERE company_name_kanji=?'
     companies_id = c.execute(sql1, where1).fetchall()[0][0]
+
+    conn.commit()
+    conn.close()
 
     sql2 = 'INSERT INTO annual_reports VALUES(NULL, ?, ?)'
     data_tuple = (companies_id, getPublishDate(root))
 
-    c.execute(sql2, data_tuple)
+    if data_tuple not in existing_annual_reports:
+        conn = sqlite3.connect('xlrd_data.db')
+        c = conn.cursor()
 
-    conn.commit()
-    conn.close()
+        c.execute(sql2, data_tuple)
+
+        conn.commit()
+        conn.close()
+        return 0
+    if data_tuple in existing_annual_reports:
+        return 1
 
 def insert_data_data(root, isConsolidated):
     conn = sqlite3.connect('xlrd_data.db')
     c = conn.cursor()
 
+
     where1 = (getPublishDate(root),)
+    print(where1)
     sql1 = 'SELECT id FROM annual_reports WHERE published_date=?'
     annual_report_id = c.execute(sql1, where1).fetchall()[0][0]
 
@@ -38,18 +51,31 @@ def insert_data_data(root, isConsolidated):
 
     data_data = []
 
+    counter = 0
     for each in parameters_data:
-        data_data.append((annual_report_id, each[0], getValue(each[1], root, isConsolidated)))
+        value = getValue(each[1], root, isConsolidated)
+        if value != None:
+            data_data.append((annual_report_id, each[0], value))
+            counter += 1
+            delimitter = len(parameters_data) / 10
+            if counter == delimitter:
+                counter = 0
+                print("#", end='')
+    print()
+
+
 
     for each in data_data:
         sql4 = 'INSERT INTO data VALUES(NULL, ?, ?, ?)'
         c.execute(sql4, each)
-        print('appended data')
+
+    conn.commit()
+    conn.close()
 
 
 def insert_data(root, isConsolidated):
 
-    insert_annual_report_data(root)
-    insert_data_data(root, isConsolidated)
-
-insert_data(root, False)
+    if insert_annual_report_data(root) == 0:
+        insert_data_data(root, isConsolidated)
+    else:
+        print(u'同じxbrlファイルを検知しました。スキップします。')

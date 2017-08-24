@@ -7,8 +7,7 @@ REBASED_CONSOLIDATED_TEXT="CurrentYearInstant"
 NON_CONSOLIDATED_TEXT="CurrentYearNonConsolidatedInstant"
 REBASED_NON_CONSOLIDATED_TEXT="CurrentYearInstant_NonConsolidatedMember"
 
-#write directory where xbrl files are
-XBRL_FILES_URL="xbrls/"
+
 
 
 
@@ -68,13 +67,13 @@ def getEdinetCode(root):
 
 
 
-#
+#XBRL_FILES_URL="xbrls/"
 # files = glob.glob(XBRL_FILES_URL + '*.xbrl')
 # dom = minidom.parse(files[0])
 # root = etree.fromstring(dom.toxml())
 # print(getEdinetCode(root))
 
-#
+#XBRL_FILES_URL="xbrls/"
 # def getData(tagName,isConsolidated):
 #     files = glob.glob(XBRL_FILES_URL + '*.xbrl')
 #     for file in files:

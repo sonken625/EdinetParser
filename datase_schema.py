@@ -47,6 +47,12 @@ def is_not_japanese(string):
 def set_up_parameters_table():
     file = xlrd.open_workbook(COLUMN_NAME_DATA_URL+'1f.xls')
 
+    conn = sqlite3.connect('xlrd_data.db')
+    c = conn.cursor()
+
+    sql1 = 'SELECT parameter_name FROM parameters'
+    existing_parameters = c.execute(sql1).fetchall()
+
     param_data = []
 
     for names in file.sheet_names():
@@ -91,21 +97,18 @@ def set_up_parameters_table():
                         cf = True
                 if significant == True:
                     if is_not_japanese(variable_name) and variable_name != '' and type != 'substitutionGroup':
-                        if bs == True and [variable_name, type] not in param_data and abstract == 'false':
+                        if bs == True and [variable_name, type] not in param_data and abstract == 'false' and (variable_name,) not in existing_parameters:
                             param_data.append((1, variable_name, type))
-                        if pl == True and [variable_name, type] not in param_data and abstract == 'false':
+                        if pl == True and [variable_name, type] not in param_data and abstract == 'false' and (variable_name,) not in existing_parameters:
                             param_data.append((2, variable_name, type))
-                        if cf == True and [variable_name, type] not in param_data and abstract == 'false':
+                        if cf == True and [variable_name, type] not in param_data and abstract == 'false' and (variable_name,) not in existing_parameters:
                             param_data.append((3, variable_name, type))
 
 
 
-    conn = sqlite3.connect('xlrd_data.db')
-    c = conn.cursor()
-
-    sql = 'INSERT INTO parameters VALUES (NULL, ?, ?, ?)'
+    sql2 = 'INSERT INTO parameters VALUES (NULL, ?, ?, ?)'
     for each in param_data:
-        c.execute(sql, each)
+        c.execute(sql2, each)
 
     conn.commit()
     conn.close()
@@ -116,11 +119,15 @@ def set_up_sheet_types_table():
     conn = sqlite3.connect('xlrd_data.db')
     c = conn.cursor()
 
+    sqle= 'SELECT sheet_name FROM sheet_types'
+    existing_sheet_types = c.execute(sqle).fetchall()
+
     insert = [('bs',), ('pl',), ('cf',)]
 
     for each in insert:
-        sql = 'INSERT INTO sheet_types VALUES( NULL, ?)'
-        c.execute(sql, tuple(each))
+        if each not in existing_sheet_types:
+            sql = 'INSERT INTO sheet_types VALUES( NULL, ?)'
+            c.execute(sql, tuple(each))
     conn.commit()
     conn.close()
 
@@ -128,23 +135,29 @@ def set_up_sheet_types_table():
 
 
 def set_up_business_categories_table():
+
+    conn = sqlite3.connect('xlrd_data.db')
+    c = conn.cursor()
+
+    sql1 = 'SELECT category_name FROM business_categories'
+    existing_business_categories = c.execute(sql1).fetchall()
+
     with codecs.open(EDINET_CODE_NAME_DATA_URL+'EdinetcodeDlInfo.csv', "r", "Shift-JIS", "ignore") as file:
         df = pd.read_table(file, delimiter=",", skiprows=2, header=None)
     list = df[10].values.tolist()
 
     list_uniq = []
     for x in list:
-        if x not in list_uniq and re.search(u'個人', x) is None and re.search(u'政府', x) is None:
+        if x not in list_uniq and re.search(u'個人', x) is None and re.search(u'政府', x) is None and (x,) not in existing_business_categories:
             list_uniq.append(x)
     tuple_uniq = tuple(list_uniq)
 
-    conn = sqlite3.connect('xlrd_data.db')
-    c = conn.cursor()
+
 
     for each in tuple_uniq:
-        sql = 'INSERT INTO business_categories VALUES(NULL, ?)'
+        sql2 = 'INSERT INTO business_categories VALUES(NULL, ?)'
 
-        c.execute(sql, (each,))
+        c.execute(sql2, (each,))
     conn.commit()
     conn.close()
 
@@ -152,18 +165,22 @@ def set_up_business_categories_table():
 
 
 def set_up_company_types_table():
+
+    conn = sqlite3.connect('xlrd_data.db')
+    c = conn.cursor()
+
+    sqle = 'SELECT company_type_name FROM company_types'
+    existing_company_types=c.execute(sqle).fetchall()
+
     with codecs.open(EDINET_CODE_NAME_DATA_URL+'EdinetcodeDlInfo.csv', "r", "Shift-JIS", "ignore") as file:
         df = pd.read_table(file, delimiter=",", skiprows=2, header=None)
     list = df[1].values.tolist()
 
     list_uniq = []
     for x in list:
-        if x not in list_uniq and re.search(u'個人', x) is None and re.search(u'政府', x) is None:
+        if x not in list_uniq and re.search(u'個人', x) is None and re.search(u'政府', x) is None and (x,) not in existing_company_types:
             list_uniq.append(x)
     tuple_uniq = tuple(list_uniq)
-
-    conn = sqlite3.connect('xlrd_data.db')
-    c = conn.cursor()
 
     for each in tuple_uniq:
         sql = 'INSERT INTO company_types VALUES(NULL, ?)'
@@ -175,6 +192,13 @@ def set_up_company_types_table():
 
 # id, cat_id, type_id, name6, alphabet7, kana8, edinetcode0, listed2, consolidated3, capital4, date5, add9, code11, cat10, type1
 def set_up_companies_table():
+
+    conn = sqlite3.connect('xlrd_data.db')
+    c = conn.cursor()
+
+    sqle= 'SELECT company_name_kanji FROM companies'
+    existing_companies = c.execute(sqle).fetchall()
+
     with codecs.open(EDINET_CODE_NAME_DATA_URL+'EdinetcodeDlInfo.csv', "r", "Shift-JIS", "ignore") as file:
         df = pd.read_table(file, delimiter=",", skiprows=2, header=None)
     df = df.iloc[:, [6, 7, 8, 0, 2, 3, 4, 5, 9, 11, 10, 1]]
@@ -196,9 +220,6 @@ def set_up_companies_table():
         list.append(insert_list)
 
 
-    conn = sqlite3.connect('xlrd_data.db')
-    c = conn.cursor()
-
 
     for each in list:
         if  re.search(u'個人', each[10]) is None and re.search(u'政府', each[10]) is None:
@@ -212,14 +233,17 @@ def set_up_companies_table():
             type_id = c.execute(sql2, (select_data2,)).fetchall()[0][0]
 
         insert_tuple = (cat_id, type_id, each[0], each[1], each[2], each[3],each[4],each[5],each[6],each[7],each[8],each[9])
-        sql3 = 'INSERT INTO companies VALUES(NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
-        c.execute(sql3, insert_tuple)
+        if (each[0],) not in existing_companies:
+            sql3 = 'INSERT INTO companies VALUES(NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            c.execute(sql3, insert_tuple)
 
     conn.commit()
     conn.close()
 
 
 def set_up_database():
+
+
     create_tables()
     set_up_sheet_types_table()
     set_up_parameters_table()
@@ -227,6 +251,3 @@ def set_up_database():
     set_up_company_types_table()
     set_up_companies_table()
 
-
-
-set_up_database()
