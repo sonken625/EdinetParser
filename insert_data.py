@@ -15,7 +15,7 @@ def insert_annual_report_data(root):
 
     where1 = (getEdinetCode(root),)
     print(where1)
-    sql1 = 'SELECT id FROM companies WHERE company_name_kanji=?'
+    sql1 = 'SELECT id FROM companies WHERE edinet_code=?'
     companies_id = c.execute(sql1, where1).fetchall()[0][0]
 
     conn.commit()
@@ -36,6 +36,7 @@ def insert_annual_report_data(root):
     if data_tuple in existing_annual_reports:
         return 1
 
+
 def insert_data_data(root, isConsolidated):
     conn = sqlite3.connect('xlrd_data.db')
     c = conn.cursor()
@@ -51,24 +52,15 @@ def insert_data_data(root, isConsolidated):
 
     data_data = []
 
-    counter = 0
     for each in parameters_data:
         value = getValue(each[1], root, isConsolidated)
         if value != None:
             data_data.append((annual_report_id, each[0], value))
 
 
-
     for each in data_data:
-        sql4 = 'INSERT INTO data VALUES(NULL, ?, ?, ?)'
+        sql4 = 'INSERT INTO data VALUES(NULL, ?, ?, ?, ?)'
         c.execute(sql4, each)
-        counter +=1
-        delimitter = int(len(data_data) / 10)
-        if counter == delimitter:
-            counter = 0
-            print("#", end = "")
-    print('100%')
-
 
     conn.commit()
     conn.close()

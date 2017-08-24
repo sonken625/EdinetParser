@@ -5,10 +5,9 @@ import sqlite3
 import re
 import pandas as pd
 
+
 COLUMN_NAME_DATA_URL="ColumnNameData/"
 EDINET_CODE_NAME_DATA_URL="ALLEdinetCode/"
-
-
 
 
 def create_tables():
@@ -18,8 +17,8 @@ def create_tables():
                                        ' company_name_alphabet TEXT, company_name_katakana TEXT, edinet_code TEXT, listed INTEGER, consolidated INTEGER,'
                                        ' capital INTEGER, settling_date TEXT, address TEXT, code INTEGER',
                 'annual_reports'     : 'id INTEGER PRIMARY KEY AUTOINCREMENT, companies_id INTEGER, published_date TEXT',
-                'data'               : 'id INTEGER PRIMARY KEY AUTOINCREMENT, annual_reports_id INTEGER, parameters_id INTEGER, data TEXT',
-                'parameters'         : 'id INTEGER PRIMARY KEY AUTOINCREMENT, sheet_types_id INTEGER, parameter_name TEXT, type TEXT',
+                'data'               : 'id INTEGER PRIMARY KEY AUTOINCREMENT, annual_reports_id INTEGER, parameters_id INTEGER, data TEXT, consolidated INTEGER',
+                'parameters'         : 'id INTEGER PRIMARY KEY AUTOINCREMENT, sheet_types_id INTEGER, parameter_name TEXT, type TEXT, prefix TEXT',
                 'sheet_types'        : 'id INTEGER PRIMARY KEY AUTOINCREMENT, sheet_name TEXT'}
 
     conn=sqlite3.connect('xlrd_data.db')
@@ -43,36 +42,30 @@ def is_not_japanese(string):
     return True
 
 
-
 def set_up_parameters_table():
     file = xlrd.open_workbook(COLUMN_NAME_DATA_URL+'1f.xls')
-
     conn = sqlite3.connect('xlrd_data.db')
     c = conn.cursor()
 
     sql1 = 'SELECT parameter_name FROM parameters'
     existing_parameters = c.execute(sql1).fetchall()
-
     param_data = []
 
     for names in file.sheet_names():
-
-
         if(re.match(u"目次",names) ==None and re.match(u"勘定科目リストについて",names)==None):
             sheet = file.sheet_by_name(names)
-
             significant = False
             bs = False
             pl = False
             cf = False
 
             for row in range(0, sheet.nrows):
-
                 variable_name = sheet.cell(row, 8).value
                 type = sheet.cell(row, 9).value
                 first_column = sheet.cell(row, 0).value
                 second_column = sheet.cell(row, 1).value
                 abstract = sheet.cell(row, 13).value
+                prefix = sheet.cell(row, 7).value
 
                 if first_column != '' and second_column == '':
                     if re.match(u"貸借対照表*", first_column) != None:
@@ -95,24 +88,22 @@ def set_up_parameters_table():
                         bs = False
                         pl = False
                         cf = True
+
                 if significant == True:
                     if is_not_japanese(variable_name) and variable_name != '' and type != 'substitutionGroup':
                         if bs == True and [variable_name, type] not in param_data and abstract == 'false' and (variable_name,) not in existing_parameters:
-                            param_data.append((1, variable_name, type))
+                            param_data.append((1, variable_name, type, prefix))
                         if pl == True and [variable_name, type] not in param_data and abstract == 'false' and (variable_name,) not in existing_parameters:
-                            param_data.append((2, variable_name, type))
+                            param_data.append((2, variable_name, type, prefix))
                         if cf == True and [variable_name, type] not in param_data and abstract == 'false' and (variable_name,) not in existing_parameters:
-                            param_data.append((3, variable_name, type))
+                            param_data.append((3, variable_name, type, prefix))
 
-
-
-    sql2 = 'INSERT INTO parameters VALUES (NULL, ?, ?, ?)'
+    sql2 = 'INSERT INTO parameters VALUES (NULL, ?, ?, ?, ?)'
     for each in param_data:
         c.execute(sql2, each)
 
     conn.commit()
     conn.close()
-
 
 
 def set_up_sheet_types_table():
@@ -121,7 +112,6 @@ def set_up_sheet_types_table():
 
     sqle= 'SELECT sheet_name FROM sheet_types'
     existing_sheet_types = c.execute(sqle).fetchall()
-
     insert = [('bs',), ('pl',), ('cf',)]
 
     for each in insert:
@@ -130,8 +120,6 @@ def set_up_sheet_types_table():
             c.execute(sql, tuple(each))
     conn.commit()
     conn.close()
-
-
 
 
 def set_up_business_categories_table():
@@ -152,16 +140,12 @@ def set_up_business_categories_table():
             list_uniq.append(x)
     tuple_uniq = tuple(list_uniq)
 
-
-
     for each in tuple_uniq:
         sql2 = 'INSERT INTO business_categories VALUES(NULL, ?)'
 
         c.execute(sql2, (each,))
     conn.commit()
     conn.close()
-
-
 
 
 def set_up_company_types_table():
@@ -242,8 +226,6 @@ def set_up_companies_table():
 
 
 def set_up_database():
-
-
     create_tables()
     set_up_sheet_types_table()
     set_up_parameters_table()
