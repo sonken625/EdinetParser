@@ -8,8 +8,6 @@ import glob
 UFO_CATCHER_PATH="http://resource.ufocatch.com/atom/edinetx/query/"
 XBRL_FILES_DIRECTORY='./xbrls/'
 
-
-
 def getXBRL_UrlOfFirm(edinetCode):
 
     dom = minidom.parse(urllib.request.urlopen(UFO_CATCHER_PATH+str(edinetCode)))
@@ -45,6 +43,8 @@ def getEdinetCodeFromExcelFile():
         for cellNum in range(sheet1.nrows):
             list.append(sheet1.cell(cellNum,0).value)
     return list
+
+
 
 
 

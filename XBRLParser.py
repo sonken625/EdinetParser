@@ -61,14 +61,18 @@ def getCompanyName(root):
 
 
 
+def getEdinetCode(root):
+    nameSpaces = root.nsmap
+    return root.find(".//xbrli:identifier",nameSpaces).text[0:6]
+
+
 
 
 #
 # files = glob.glob(XBRL_FILES_URL + '*.xbrl')
-# print(getCompanyName(files[0]))
-#  dom = minidom.parse(fileUrl)
-#  root = etree.fromstring(dom.toxml())
-
+# dom = minidom.parse(files[0])
+# root = etree.fromstring(dom.toxml())
+# print(getEdinetCode(root))
 
 #
 # def getData(tagName,isConsolidated):
