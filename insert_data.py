@@ -37,25 +37,43 @@ def insert_annual_report_data(root):
         return 1
 
 
-def insert_data_data(root, isConsolidated):
+def insert_data_data(root):
     conn = sqlite3.connect('xlrd_data.db')
     c = conn.cursor()
 
 
     where1 = (getPublishDate(root),)
     print(where1)
-    sql1 = 'SELECT id FROM annual_reports WHERE published_date=?'
-    annual_report_id = c.execute(sql1, where1).fetchall()[0][0]
+    sql1 = 'SELECT id, companies_id FROM annual_reports WHERE published_date=?'
+
+    a= c.execute(sql1, where1).fetchall()[0]
+    annual_report_id = a[0]
+    company_id = a[1]
+
+    where2 = (company_id,)
+    sqlwow = 'SELECT consolidated FROM companies WHERE id= ?'
+
+    company_consolidated = c.execute(sqlwow, where2).fetchall()[0][0]
 
     sql2 = 'SELECT id, parameter_name FROM parameters'
     parameters_data = c.execute(sql2).fetchall()
 
     data_data = []
 
-    for each in parameters_data:
-        value = getValue(each[1], root, isConsolidated)
-        if value != None:
-            data_data.append((annual_report_id, each[0], value))
+    if company_consolidated == 0:
+        for each in parameters_data:
+            value = getValue(each[1], root, False)
+            if value != None:
+                data_data.append((annual_report_id, each[0], value, 0))
+    else:
+        for each in parameters_data:
+            value1 = getValue(each[1], root, False)
+            if value1 != None:
+                data_data.append((annual_report_id, each[0], value1, 0))
+
+            value2 = getValue(each[1], root, True)
+            if value2 != None:
+                data_data.append((annual_report_id, each[0], value2, 1))
 
 
     for each in data_data:
@@ -66,9 +84,11 @@ def insert_data_data(root, isConsolidated):
     conn.close()
 
 
-def insert_data(root, isConsolidated):
+
+
+def insert_all_data(root):
 
     if insert_annual_report_data(root) == 0:
-        insert_data_data(root, isConsolidated)
+        insert_data_data(root)
     else:
         print(u'同じxbrlファイルを検知しました。スキップします。')
