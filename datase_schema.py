@@ -226,3 +226,7 @@ def set_up_database():
     set_up_business_categories_table()
     set_up_company_types_table()
     set_up_companies_table()
+
+
+
+set_up_database()
