@@ -13,7 +13,7 @@ def insert_annual_report_data(root):
     sqle= 'SELECT companies_id, published_date FROM annual_reports'
     existing_annual_reports = c.execute(sqle).fetchall()
 
-    where1 = (getCompanyName(root),)
+    where1 = (getEdinetCode(root),)
     print(where1)
     sql1 = 'SELECT id FROM companies WHERE company_name_kanji=?'
     companies_id = c.execute(sql1, where1).fetchall()[0][0]
