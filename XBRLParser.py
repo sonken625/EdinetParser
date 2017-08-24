@@ -11,9 +11,14 @@ REBASED_NON_CONSOLIDATED_TEXT="CurrentYearInstant_NonConsolidatedMember"
 XBRL_FILES_URL="xbrls/"
 
 
-def getValue(tagName,fileUrl,isConsolidated):
-    root = __createEtreeObjectFromFileURL(fileUrl)
 
+
+
+#rootにはetreeオブジェクトを入れる
+#一回パースしてから実行したほうが早いから
+# (例) dom = minidom.parse(fileUrl)
+#      root = etree.fromstring(dom.toxml())
+def getValue(tagName,root,isConsolidated):
     nameSpaces = root.nsmap
 
     for nameSpace in nameSpaces:
@@ -30,9 +35,12 @@ def getValue(tagName,fileUrl,isConsolidated):
                     return element.text
 
 
-def getPublishDate(fileUrl):
-    root = __createEtreeObjectFromFileURL(fileUrl)
+#rootにはetreeオブジェクトを入れる
+#一回パースしてから実行したほうが早いから
+# (例) dom = minidom.parse(fileUrl)
+#      root = etree.fromstring(dom.toxml())
 
+def getPublishDate(root):
     nameSpaces = root.nsmap
     elements = root.findall("xbrli:context", nameSpaces)
     for element in elements:
@@ -40,25 +48,26 @@ def getPublishDate(fileUrl):
             return element.find(".//xbrli:instant",nameSpaces).text
 
 
-def getCompanyName(fileUrl):
-    root = __createEtreeObjectFromFileURL(fileUrl)
-
+#rootにはetreeオブジェクトを入れる
+#一回パースしてから実行したほうが早いから
+# (例) dom = minidom.parse(fileUrl)
+#      root = etree.fromstring(dom.toxml())
+def getCompanyName(root):
     nameSpaces = root.nsmap
     if("jpfr-di" in nameSpaces):
         return root.find("jpfr-di:EntityNameJaEntityInformation", nameSpaces).text
     elif("jpcrp_cor" in nameSpaces):
         return root.find("jpcrp_cor:CompanyNameCoverPage", nameSpaces).text
 
-def __createEtreeObjectFromFileURL(fileUrl):
-    dom = minidom.parse(fileUrl)
-    root = etree.fromstring(dom.toxml())
-    return root
+
 
 
 
 #
 # files = glob.glob(XBRL_FILES_URL + '*.xbrl')
 # print(getCompanyName(files[0]))
+#  dom = minidom.parse(fileUrl)
+#  root = etree.fromstring(dom.toxml())
 
 
 #
