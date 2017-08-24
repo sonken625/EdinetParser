@@ -3,6 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="48c4978a-3ca1-49c7-9304-99513c811e8b" name="Default" comment="">
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/insert_data.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/test.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/xbrls2/縲職00040縲鷹未譚ｱ螟ｩ辟ｶ逑ｦ譁ｯ髢狗匱譬ｪ蠑丈ｼ夂､ｾ 譛我ｾ｡險ｼ蛻ｸ蝣ｱ蜻頑嶌 窶・隨ｬ149譛滂ｼ亥ｹｳ謌・2蟷ｴ1譛・譌･ 窶・蟷ｳ謌・2蟷ｴ12譛・1譌･・・xbrl" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/xlrd_data.db" afterPath="$PROJECT_DIR$/xlrd_data.db" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/EdinetDownload.iml" afterPath="$PROJECT_DIR$/.idea/EdinetDownload.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
@@ -38,8 +40,8 @@
       <file leaf-file-name="insert_data.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/insert_data.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="118">
-              <caret line="42" column="26" selection-start-line="42" selection-start-column="26" selection-end-line="42" selection-end-column="26" />
+            <state relative-caret-position="137">
+              <caret line="35" column="48" selection-start-line="35" selection-start-column="48" selection-end-line="35" selection-end-column="48" />
               <folding>
                 <element signature="e#1#15#0" expanded="true" />
               </folding>
@@ -119,7 +121,7 @@
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="11" />
+    <option name="x" value="398" />
     <option name="width" value="1416" />
     <option name="height" value="1038" />
   </component>
@@ -461,7 +463,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="11" y="0" width="1416" height="1038" extended-state="0" />
+    <frame x="398" y="0" width="1416" height="1038" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2035139" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -668,8 +670,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/insert_data.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="118">
-          <caret line="42" column="26" selection-start-line="42" selection-start-column="26" selection-end-line="42" selection-end-column="26" />
+        <state relative-caret-position="137">
+          <caret line="35" column="48" selection-start-line="35" selection-start-column="48" selection-end-line="35" selection-end-column="48" />
           <folding>
             <element signature="e#1#15#0" expanded="true" />
           </folding>
