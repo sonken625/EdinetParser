@@ -7,8 +7,7 @@ REBASED_CONSOLIDATED_TEXT="CurrentYearInstant"
 NON_CONSOLIDATED_TEXT="CurrentYearNonConsolidatedInstant"
 REBASED_NON_CONSOLIDATED_TEXT="CurrentYearInstant_NonConsolidatedMember"
 
-#write directory where xbrl files are
-XBRL_FILES_URL="xbrls/"
+
 
 
 
@@ -63,14 +62,14 @@ def getCompanyName(root):
 
 
 
-#
+#XBRL_FILES_URL="xbrls/"
 # files = glob.glob(XBRL_FILES_URL + '*.xbrl')
 # print(getCompanyName(files[0]))
 #  dom = minidom.parse(fileUrl)
 #  root = etree.fromstring(dom.toxml())
 
 
-#
+#XBRL_FILES_URL="xbrls/"
 # def getData(tagName,isConsolidated):
 #     files = glob.glob(XBRL_FILES_URL + '*.xbrl')
 #     for file in files:
