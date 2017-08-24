@@ -56,18 +56,19 @@ def insert_data_data(root, isConsolidated):
         value = getValue(each[1], root, isConsolidated)
         if value != None:
             data_data.append((annual_report_id, each[0], value))
-            counter += 1
-            delimitter = len(parameters_data) / 10
-            if counter == delimitter:
-                counter = 0
-                print("#", end='')
-    print()
 
 
 
     for each in data_data:
         sql4 = 'INSERT INTO data VALUES(NULL, ?, ?, ?)'
         c.execute(sql4, each)
+        counter +=1
+        delimitter = int(len(data_data) / 10)
+        if counter == delimitter:
+            counter = 0
+            print("#", end = "")
+    print('100%')
+
 
     conn.commit()
     conn.close()
