@@ -9,18 +9,10 @@ import os.path
 
 XBRL_FILES_URL="xbrls/"
 
-if  os.path.exists("\\xlrd_data.db"):
+if  os.path.isfile(".\\xlrd_data.db") is False:
     set_up_database()
-
-# conn = sqlite3.connect('xlrd_data.db')
-# c = conn.cursor()
-#
-# hatena = ('jppfs_cor',)
-# sql = 'SELECT prefix FROM parameters WHERE prefix != ?'
-# data = c.execute(sql, hatena).fetchall()
-# print(data)
-
-
+else:
+    print('データベースがすでに存在します')
 
 files = glob.glob(XBRL_FILES_URL + '*xbrl')
 for file in files:
