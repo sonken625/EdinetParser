@@ -68,38 +68,52 @@ def insert_data_data(root, company_id):
             time_elapsed= time.time()-start
             get_method_time += time_elapsed
             if value != None:
+                startappend=time.time()
                 data_data.append((annual_report_id, each[0], value, 0))
-                list_time_elapsed = time.time()-start
+                list_time_elapsed = time.time()-startappend
                 list_append_time += list_time_elapsed
         print('list append time = %s' % list_append_time)
         print('getValue() time = %s' % get_method_time)
     else:
         get_method_time = 0
         list_append_time = 0
+
         for each in parameters_data:
-            start = time.time()
+            start1 = time.time()
             value1 = getValue(each[1], root, False)
-            time_elapsed=time.time() -start
+            time_elapsed=time.time() -start1
             get_method_time += time_elapsed
+
             if value1 != None:
+
+                startappend1=time.time()
                 data_data.append((annual_report_id, each[0], value1, 0))
-                list_time_elapsed = time.time() - start
+                list_time_elapsed = time.time() - startappend1
                 list_append_time += list_time_elapsed
 
-
+            start2 = time.time()
             value2 = getValue(each[1], root, True)
+            time_elapsed=time.time() -start2
+            get_method_time += time_elapsed
+
             if value2 != None:
+                startappend2=time.time()
+
                 data_data.append((annual_report_id, each[0], value2, 1))
-                list_time_elapsed = time.time() - start
+                list_time_elapsed = time.time() - startappend2
                 list_append_time += list_time_elapsed
 
         print('list append time = %s' % list_append_time)
         print('getValue() time = %s' % get_method_time)
 
-
+    querytime=0
     for each in data_data:
+        start = time.time()
         sql4 = 'INSERT INTO data VALUES(NULL, ?, ?, ?, ?)'
         c.execute(sql4, each)
+        elapsed = time.time() - start
+        querytime += elapsed
+    print('query time = %s' % querytime)
 
     conn.commit()
     conn.close()
