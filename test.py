@@ -4,14 +4,13 @@ from xml.dom import minidom
 from datase_schema import set_up_database
 from insert_data import insert_annual_report_data_and_data_data
 import datetime
+import os.path
 
-
-d = datetime.datetime.today()
-start_time = d.strftime("%Y-%m-%d %H:%M:%S")
-print(start_time)
 
 XBRL_FILES_URL="xbrls/"
-#set_up_database()
+
+if  os.path.exists("\\xlrd_data.db"):
+    set_up_database()
 
 # conn = sqlite3.connect('xlrd_data.db')
 # c = conn.cursor()
@@ -30,6 +29,3 @@ for file in files:
 
     insert_annual_report_data_and_data_data(root)
 
-end_time = d.strftime("%Y-%m-%d %H:%M:%S")
-
-print('end time  : %s' % end_time)
