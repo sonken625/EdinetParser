@@ -6,7 +6,7 @@ from XBRLParser import *
 
 
 
-def insert_annual_report_data(root):
+def insert_annual_report_data_and_data_data(root):
     conn = sqlite3.connect('xlrd_data.db')
     c = conn.cursor()
 
@@ -32,23 +32,21 @@ def insert_annual_report_data(root):
 
         conn.commit()
         conn.close()
-        return 0
+        insert_data_data(root, companies_id)
+
     if data_tuple in existing_annual_reports:
-        return 1
+        print(u'同じxbrlファイルを検知しました。スキップします。')
 
 
-def insert_data_data(root):
+
+def insert_data_data(root, company_id):
     conn = sqlite3.connect('xlrd_data.db')
     c = conn.cursor()
 
-
-    where1 = (getPublishDate(root),)
-    print(where1)
-    sql1 = 'SELECT id, companies_id FROM annual_reports WHERE published_date=?'
-
-    a= c.execute(sql1, where1).fetchall()[0]
-    annual_report_id = a[0]
-    company_id = a[1]
+    where1 = (company_id, getPublishDate(root))
+    sql1 = 'SELECT id FROM annual_reports WHERE companies_id=? AND published_date=?'
+    annual_report_id= c.execute(sql1, where1).fetchall()[0][0]
+    print(where1[1])
 
     where2 = (company_id,)
     sqlwow = 'SELECT consolidated FROM companies WHERE id= ?'
@@ -83,12 +81,3 @@ def insert_data_data(root):
     conn.commit()
     conn.close()
 
-
-
-
-def insert_all_data(root):
-
-    if insert_annual_report_data(root) == 0:
-        insert_data_data(root)
-    else:
-        print(u'同じxbrlファイルを検知しました。スキップします。')
