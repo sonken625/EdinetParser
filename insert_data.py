@@ -1,6 +1,7 @@
 
 import sqlite3
 from XBRLParser import *
+import time
 
 
 
@@ -59,19 +60,41 @@ def insert_data_data(root, company_id):
     data_data = []
 
     if company_consolidated == 0:
+        get_method_time=0
+        list_append_time = 0
         for each in parameters_data:
+            start = time.time()
             value = getValue(each[1], root, False)
+            time_elapsed= time.time()-start
+            get_method_time += time_elapsed
             if value != None:
                 data_data.append((annual_report_id, each[0], value, 0))
+                list_time_elapsed = time.time()-start
+                list_append_time += list_time_elapsed
+        print('list append time = %s' % list_append_time)
+        print('getValue() time = %s' % get_method_time)
     else:
+        get_method_time = 0
+        list_append_time = 0
         for each in parameters_data:
+            start = time.time()
             value1 = getValue(each[1], root, False)
+            time_elapsed=time.time() -start
+            get_method_time += time_elapsed
             if value1 != None:
                 data_data.append((annual_report_id, each[0], value1, 0))
+                list_time_elapsed = time.time() - start
+                list_append_time += list_time_elapsed
+
 
             value2 = getValue(each[1], root, True)
             if value2 != None:
                 data_data.append((annual_report_id, each[0], value2, 1))
+                list_time_elapsed = time.time() - start
+                list_append_time += list_time_elapsed
+
+        print('list append time = %s' % list_append_time)
+        print('getValue() time = %s' % get_method_time)
 
 
     for each in data_data:
