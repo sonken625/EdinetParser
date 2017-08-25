@@ -20,11 +20,14 @@ else:
 files = glob.glob(XBRL_FILES_URL + '*xbrl')
 for file in files:
     start = time.time()
+
     dom = minidom.parse(file)
     root = etree.fromstring(dom.toxml())
     io_time = time.time()-start
+
     insert_annual_report_data_and_data_data(root)
-    per_xbrl_execution_time=time.time()-start
+    per_xbrl_execution_time = time.time() - start
+
     print('io time = %s' % io_time)
-    print('per xbrl file execution time = %s' % per_xbrl_execution_time)
+    print ("per xbrl time = %s" % per_xbrl_execution_time)
 
