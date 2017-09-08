@@ -86,7 +86,7 @@ def insert_data_data(root, company_id):
 
             startget1 = time.time()
             value1 = getValue(each[1], root, False)
-            time_elapsed1=time.time() -startget1
+            time_elapsed1 = time.time() - startget1
             get_method_time2 += time_elapsed1
 
             if value1 != None:
@@ -110,7 +110,7 @@ def insert_data_data(root, company_id):
                 startquery2 = time.time()
 
                 insert_sql = 'INSERT INTO data VALUES(NULL, ?, ?, ?, ?)'
-                insert_tuple = (annual_report_id, each[0], value2, 0)
+                insert_tuple = (annual_report_id, each[0], value2, 1)
                 c.execute(insert_sql, insert_tuple)
 
                 query_elapsed2 = time.time() - startquery2

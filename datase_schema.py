@@ -11,14 +11,14 @@ EDINET_CODE_NAME_DATA_URL="ALLEdinetCode/"
 
 
 def create_tables():
-    sql_dict = {'business_categories': 'id INTEGER PRIMARY KEY AUTOINCREMENT, category_name TEXT',
-                'company_types'      : 'id INTEGER PRIMARY KEY AUTOINCREMENT, company_type_name',
+    sql_dict = {'business_categories': 'id INTEGER PRIMARY KEY AUTOINCREMENT, category_name TEXT UNIQUE',
+                'company_types'      : 'id INTEGER PRIMARY KEY AUTOINCREMENT, company_type_name TEXT UNIQUE',
                 'companies'          : 'id INTEGER PRIMARY KEY AUTOINCREMENT, business_categories_id, company_types_id, company_name_kanji TEXT,'
-                                       ' company_name_alphabet TEXT, company_name_katakana TEXT, edinet_code TEXT, listed INTEGER, consolidated INTEGER,'
+                                       ' company_name_alphabet TEXT, company_name_katakana TEXT, edinet_code TEXT UNIQUE, listed INTEGER, consolidated INTEGER,'
                                        ' capital INTEGER, settling_date TEXT, address TEXT, code INTEGER',
                 'annual_reports'     : 'id INTEGER PRIMARY KEY AUTOINCREMENT, companies_id INTEGER, published_date TEXT',
                 'data'               : 'id INTEGER PRIMARY KEY AUTOINCREMENT, annual_reports_id INTEGER, parameters_id INTEGER, data TEXT, consolidated INTEGER',
-                'parameters'         : 'id INTEGER PRIMARY KEY AUTOINCREMENT, sheet_types_id INTEGER, parameter_name TEXT, type TEXT, prefix TEXT',
+                'parameters'         : 'id INTEGER PRIMARY KEY AUTOINCREMENT, sheet_types_id INTEGER, parameter_name TEXT UNIQUE, type TEXT, prefix TEXT',
                 'sheet_types'        : 'id INTEGER PRIMARY KEY AUTOINCREMENT, sheet_name TEXT'}
 
     conn=sqlite3.connect('xlrd_data.db')
@@ -27,6 +27,8 @@ def create_tables():
     for k,v in sql_dict.items():
         sql = 'CREATE TABLE IF NOT EXISTS %s (%s)' % (k, v)
         c.execute(sql)
+
+    print('　テーブル作成')
 
     conn.commit()
     conn.close()
@@ -47,8 +49,6 @@ def set_up_parameters_table():
     conn = sqlite3.connect('xlrd_data.db')
     c = conn.cursor()
 
-    sql1 = 'SELECT parameter_name FROM parameters'
-    existing_parameters = c.execute(sql1).fetchall()
     param_data = []
 
     for names in file.sheet_names():
@@ -89,18 +89,25 @@ def set_up_parameters_table():
                         pl = False
                         cf = True
 
-                if significant == True:
+                if significant is True:
                     if is_not_japanese(variable_name) and variable_name != '' and type != 'substitutionGroup':
-                        if bs == True and [variable_name, type] not in param_data and abstract == 'false' and (variable_name,) not in existing_parameters:
-                            param_data.append((1, variable_name, type, prefix))
-                        if pl == True and [variable_name, type] not in param_data and abstract == 'false' and (variable_name,) not in existing_parameters:
-                            param_data.append((2, variable_name, type, prefix))
-                        if cf == True and [variable_name, type] not in param_data and abstract == 'false' and (variable_name,) not in existing_parameters:
-                            param_data.append((3, variable_name, type, prefix))
+                        #if (variable_name,) not in existing_parameters: sorry, shit code
+                            if bs is True:
+                                param_data.append((1, variable_name, type, prefix))
+                            if pl is True:
+                                param_data.append((2, variable_name, type, prefix))
+                            if cf is True:
+                                param_data.append((3, variable_name, type, prefix))
 
     sql2 = 'INSERT INTO parameters VALUES (NULL, ?, ?, ?, ?)'
+    sql3 = 'SELECT parameter_name FROM parameters'
+
     for each in param_data:
-        c.execute(sql2, each)
+        existing_parameter = c.execute(sql3).fetchall()
+        if (each[1],) not in existing_parameter:
+            c.execute(sql2, each)
+
+    print('　 パラメータテーブル作成')
 
     conn.commit()
     conn.close()
@@ -118,6 +125,7 @@ def set_up_sheet_types_table():
         if each not in existing_sheet_types:
             sql = 'INSERT INTO sheet_types VALUES( NULL, ?)'
             c.execute(sql, tuple(each))
+    print('　 シーツテーブル作成')
     conn.commit()
     conn.close()
 
@@ -144,6 +152,9 @@ def set_up_business_categories_table():
         sql2 = 'INSERT INTO business_categories VALUES(NULL, ?)'
 
         c.execute(sql2, (each,))
+
+    print('　 カテゴリーテーブル')
+
     conn.commit()
     conn.close()
 
@@ -180,14 +191,11 @@ def set_up_companies_table():
     conn = sqlite3.connect('xlrd_data.db')
     c = conn.cursor()
 
-    sqle= 'SELECT company_name_kanji FROM companies'
-    existing_companies = c.execute(sqle).fetchall()
-
     with codecs.open(EDINET_CODE_NAME_DATA_URL+'EdinetcodeDlInfo.csv', "r", "Shift-JIS", "ignore") as file:
         df = pd.read_table(file, delimiter=",", skiprows=2, header=None)
     df = df.iloc[:, [6, 7, 8, 0, 2, 3, 4, 5, 9, 11, 10, 1]]
-    df = df[df[10].str.contains("個人")==False]
-    df = df[df[1].str.contains("政府")==False]
+    df = df[df[10].str.contains("個人") == False] # なぜか==じゃないとうごかない
+    df = df[df[1].str.contains("政府") == False]
 
     parsed_list = df.values.tolist()
 
@@ -217,6 +225,10 @@ def set_up_companies_table():
             type_id = c.execute(sql2, (select_data2,)).fetchall()[0][0]
 
         insert_tuple = (cat_id, type_id, each[0], each[1], each[2], each[3],each[4],each[5],each[6],each[7],each[8],each[9])
+        sqle = 'SELECT company_name_kanji, company_name_katakana FROM companies'
+        existing_companies = c.execute(sqle).fetchall()
+
+
         if (each[0],) not in existing_companies:
             sql3 = 'INSERT INTO companies VALUES(NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
             c.execute(sql3, insert_tuple)
