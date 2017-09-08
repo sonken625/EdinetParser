@@ -3,3 +3,4 @@ xbrls/*
 *.db
 .idea/
 __pycache__/
+xlrd_data.db-journal
