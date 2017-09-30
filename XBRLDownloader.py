@@ -27,6 +27,8 @@ def getXBRL_UrlOfFirm(edinetCode):
 
                 if(xbrl_link_text):
                     link_list.update({text:link_text})
+        else:
+            print("有価証券届出書（新規公開時）はありません")
     return link_list
 
 def get_pdf_url(edinet_code):
@@ -54,7 +56,7 @@ def get_pdf_url(edinet_code):
 def downLoadFile(list):
     for url_key in list.keys():
         print(list[url_key])
-        urllib.request.urlretrieve(list[url_key], PDF_DIRECTORY+url_key+".pdf")
+        urllib.request.urlretrieve(list[url_key], XBRL_FILES_DIRECTORY+url_key+".xbrl")
         print("download complete: "+url_key)
 
 
@@ -73,4 +75,4 @@ def getEdinetCodeFromExcelFile(file_name):
 
 for edinet_code in getEdinetCodeFromExcelFile("forTest"):
     print(edinet_code)
-    downLoadFile(get_pdf_url(edinet_code))
+    downLoadFile(getXBRL_UrlOfFirm(edinet_code))

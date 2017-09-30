@@ -80,6 +80,7 @@ def getEdinetCode(root):
 
 
 
+
 #XBRL_FILES_URL="xbrls/"
 # def getData(tagName,isConsolidated):
 #     files = glob.glob(XBRL_FILES_URL + '*.xbrl')
